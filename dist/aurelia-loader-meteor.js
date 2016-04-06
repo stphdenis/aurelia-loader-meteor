@@ -36,7 +36,7 @@ function ensureOriginOnExports(executed, name) {
   var key = void 0;
   var exportedValue = void 0;
 
-  if (target.__useDefault) {
+  if (target && target.__useDefault) {
     target = target.default;
   }
 
