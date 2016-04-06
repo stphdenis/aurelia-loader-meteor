@@ -1,6 +1,7 @@
-import { Origin } from 'aurelia-metadata';
-import { Loader } from 'aurelia-loader';
-import { DOM, PLATFORM } from 'aurelia-pal';
+import {Origin} from 'aurelia-metadata';
+import {Loader} from 'aurelia-loader';
+import {DOM, PLATFORM} from 'aurelia-pal';
+import { meteorRequire } from './meteor-require'; // !!! import added !!!
 
 /**
 * An implementation of the TemplateLoader interface implemented with text-based loading.
@@ -13,9 +14,8 @@ export class TextTemplateLoader {
   * @return A promise which resolves when the TemplateRegistryEntry is loaded with a template.
   */
   loadTemplate(loader, entry) {
-    const entryToLoad = entry;
-    return loader.loadText(entryToLoad.address).then(text => {
-      entryToLoad.template = DOM.createTemplateFromMarkup(text);
+    return loader.loadText(entry.address).then(text => {
+      entry.template = DOM.createTemplateFromMarkup(text);
     });
   }
 }
@@ -26,35 +26,27 @@ function ensureOriginOnExports(executed, name) {
   let key;
   let exportedValue;
 
-  if (target && target.__useDefault) {
+  if (target.__useDefault) {
     target = target.default;
   }
 
   Origin.set(target, new Origin(name, 'default'));
 
   for (key in target) {
-    // if (target.hasOwnProperty(key)) {
     exportedValue = target[key];
 
     if (typeof exportedValue === 'function') {
       Origin.set(exportedValue, new Origin(name, key));
     }
-    // }
   }
 
   return executed;
 }
 
-function toCamelCase(str) {
-  const t = str.replace(/(?:^|\.?)(_.-)/g, (x, y) => y.toUpperCase()[1]);
-  return t.charAt(0).toUpperCase() + t.substr(1);
-}
-
 /**
-* A default implementation of the Loader abstraction which works with webpack
-* (extended common-js style).
+* A default implementation of the Loader abstraction which works with webpack (extended common-js style).
 */
-export class MeteorLoader extends Loader {
+export class MeteorLoader extends Loader { // !!! Name changed !!!
 
   constructor() {
     super();
@@ -63,16 +55,19 @@ export class MeteorLoader extends Loader {
     this.loaderPlugins = {};
     this.useTemplateLoader(new TextTemplateLoader());
 
-    const that = this;
+    let that = this;
 
     this.addPlugin('template-registry-entry', {
-      fetch: (address) => {
-        const entry = that.getOrCreateTemplateRegistryEntry(address);
-        return entry.templateIsLoaded
-          ? entry
-          : that.templateLoader.loadTemplate(that, entry).then(() => entry);
-      },
+      'fetch': function(address) {
+        let entry = that.getOrCreateTemplateRegistryEntry(address);
+        return entry.templateIsLoaded ? entry : that.templateLoader.loadTemplate(that, entry).then(x => entry);
+      }
     });
+  }
+
+  function toCamelCase(str) {
+    const t = str.replace(/(?:^|\.?)(_.-)/g, (x, y) => y.toUpperCase()[1]);
+    return t.charAt(0).toUpperCase() + t.substr(1);
   }
 
   _import(moduleId) {
@@ -84,21 +79,8 @@ export class MeteorLoader extends Loader {
       try {
         if (loaderPlugin) {
           resolve(this.loaderPlugins[loaderPlugin].fetch(path));
-        } else {
-          // const result = require(`aurelia-loader-context/${path}`);
-          const name = path;// .substr(this.baseURL.length);
-          let result;
-          try {
-            result = require(`/${name}`);
-          } catch (e) {
-            const names = name.split('/');
-            result = require(names[0]);
-            for (let i = 1; i < names.length; i++) {
-              const camelName = toCamelCase(names[i]);
-              result = result[camelName];
-            }
-          }
-          resolve(result);
+        } else { // !!! Part changed !!!
+          resolve(meteorRequire(result));
         }
       } catch (e) {
         reject(e);
@@ -149,7 +131,7 @@ export class MeteorLoader extends Loader {
   * @return A Promise for an array of loaded modules.
   */
   loadAllModules(ids) {
-    const loads = [];
+    let loads = [];
 
     for (let i = 0, ii = ids.length; i < ii; ++i) {
       loads.push(this.loadModule(ids[i]));
@@ -164,7 +146,7 @@ export class MeteorLoader extends Loader {
   * @return A Promise for the loaded module.
   */
   loadModule(id) {
-    const existing = this.moduleRegistry[id];
+    let existing = this.moduleRegistry[id];
     if (existing) {
       return Promise.resolve(existing);
     }
@@ -219,6 +201,6 @@ export class MeteorLoader extends Loader {
   }
 }
 
-PLATFORM.Loader = MeteorLoader;
+PLATFORM.Loader = MeteorLoader; // !!! Name changed !!!
 
-PLATFORM.eachModule = function eachModule(callback) {};
+PLATFORM.eachModule = function(callback) {};
