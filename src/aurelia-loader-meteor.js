@@ -1,7 +1,7 @@
 import {Origin} from 'aurelia-metadata';
 import {Loader} from 'aurelia-loader';
 import {DOM, PLATFORM} from 'aurelia-pal';
-import { meteorRequire } from './meteor-require'; // !!! import added !!!
+import {meteorRequire} from './meteor-require'; // !!! import added !!!
 
 /**
 * An implementation of the TemplateLoader interface implemented with text-based loading.
@@ -19,7 +19,6 @@ export class TextTemplateLoader {
     });
   }
 }
-
 
 function ensureOriginOnExports(executed, name) {
   let target = executed;
@@ -65,7 +64,7 @@ export class MeteorLoader extends Loader { // !!! Name changed !!!
     });
   }
 
-  function toCamelCase(str) {
+  toCamelCase(str) {
     const t = str.replace(/(?:^|\.?)(_.-)/g, (x, y) => y.toUpperCase()[1]);
     return t.charAt(0).toUpperCase() + t.substr(1);
   }
