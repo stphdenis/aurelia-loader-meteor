@@ -1,6 +1,6 @@
 {
   "name": "aurelia-loader-meteor",
-  "version": "1.0.0-beta.1.0.4",
+  "version": "1.0.0-beta.1.0.5",
   "description": "An implementation of Aurelia's loader interface for meteor.",
   "keywords": [
     "aurelia",
@@ -17,5 +17,10 @@
     "type": "git",
     "url": "http://github.com/stphdenis/aurelia-loader-meteor"
   },
-  "main": "dist/aurelia-loader-meteor.js"
+  "main": "dist/aurelia-loader-meteor.js",
+  "dependencies": {
+    "aurelia-metadata": "^1.0.0-beta.1.1.3",
+    "aurelia-loader": "^1.0.0-beta.1.1.0",
+    "aurelia-pal": "^1.0.0-beta.1.1.1",
+  }
 }
