@@ -64,10 +64,14 @@ function requireMeteor(path) {
   try {
     result = require('/' + name);
   } catch (e) {
-    var names = name.split('/');
-    result = require(names[0]);
-    for (var i = 1; i < names.length; i++) {
-      result = result[toCamelCase(names[i])];
+    try {
+      result = require('/' + name + '.ts');
+    } catch (e) {
+      var names = name.split('/');
+      result = require(names[0]);
+      for (var i = 1; i < names.length; i++) {
+        result = result[toCamelCase(names[i])];
+      }
     }
   }
   return result;
