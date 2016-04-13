@@ -2,6 +2,7 @@ import {Origin} from 'aurelia-metadata';
 import {Loader} from 'aurelia-loader';
 import {DOM, PLATFORM} from 'aurelia-pal';
 import {meteorRequire} from './meteor-require'; // !!! import added !!!
+import {toCamelCase} from './to-camel-case'; // !!! import added !!!
 
 /**
 * An implementation of the TemplateLoader interface implemented with text-based loading.
@@ -20,12 +21,13 @@ export class TextTemplateLoader {
   }
 }
 
+
 function ensureOriginOnExports(executed, name) {
   let target = executed;
   let key;
   let exportedValue;
 
-  if (target && target.__useDefault) {
+  if (target.__useDefault) {
     target = target.default;
   }
 
@@ -43,15 +45,14 @@ function ensureOriginOnExports(executed, name) {
 }
 
 /**
-* A default implementation of the Loader abstraction which works with webpack (extended common-js style).
+* A default implementation of the Loader abstraction which works with meteor (extended common-js style).
 */
-export class MeteorLoader extends Loader { // !!! Name changed !!!
-
+export class MeteorLoader extends Loader {
   constructor() {
     super();
 
-    this.moduleRegistry = {};
-    this.loaderPlugins = {};
+    this.moduleRegistry = Object.create(null);
+    this.loaderPlugins = Object.create(null);
     this.useTemplateLoader(new TextTemplateLoader());
 
     let that = this;
@@ -62,11 +63,16 @@ export class MeteorLoader extends Loader { // !!! Name changed !!!
         return entry.templateIsLoaded ? entry : that.templateLoader.loadTemplate(that, entry).then(x => entry);
       }
     });
-  }
 
-  toCamelCase(str) {
-    const t = str.replace(/(?:^|\.?)(_.-)/g, (x, y) => y.toUpperCase()[1]);
-    return t.charAt(0).toUpperCase() + t.substr(1);
+    PLATFORM.eachModule = callback => {
+      let registry = this.moduleRegistry;
+
+      for (let key in registry) {
+        try {
+          if (callback(key, registry[key])) return;
+        } catch (e) {}
+      }
+    };
   }
 
   _import(moduleId) {
@@ -78,7 +84,7 @@ export class MeteorLoader extends Loader { // !!! Name changed !!!
       try {
         if (loaderPlugin) {
           resolve(this.loaderPlugins[loaderPlugin].fetch(path));
-        } else { // !!! Part changed !!!
+        } else {
           resolve(meteorRequire(result));
         }
       } catch (e) {
@@ -200,6 +206,4 @@ export class MeteorLoader extends Loader { // !!! Name changed !!!
   }
 }
 
-PLATFORM.Loader = MeteorLoader; // !!! Name changed !!!
-
-PLATFORM.eachModule = function(callback) {};
+PLATFORM.Loader = MeteorLoader;
