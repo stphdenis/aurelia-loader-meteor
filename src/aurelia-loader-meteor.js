@@ -27,7 +27,7 @@ function ensureOriginOnExports(executed, name) {
   let key;
   let exportedValue;
 
-  if (target.__useDefault) {
+  if (target && target.__useDefault) { // !!! target &&  added !!!
     target = target.default;
   }
 
@@ -85,7 +85,7 @@ export class MeteorLoader extends Loader {
         if (loaderPlugin) {
           resolve(this.loaderPlugins[loaderPlugin].fetch(path));
         } else {
-          resolve(meteorRequire(result));
+          resolve(meteorRequire(result)); // !!! block replaced !!!
         }
       } catch (e) {
         reject(e);

@@ -36,7 +36,7 @@ function ensureOriginOnExports(executed, name) {
   var key = void 0;
   var exportedValue = void 0;
 
-  if (target.__useDefault) {
+  if (target && target.__useDefault) { // !!! target &&  added !!!
     target = target.default;
   }
 
@@ -53,12 +53,12 @@ function ensureOriginOnExports(executed, name) {
   return executed;
 }
 
-function toCamelCase(str) {
+function toCamelCase(str) { // !!! added !!!
   var t = str.replace(/(?:^|\.?)(_.-)/g, function(x, y) {return y.toUpperCase()[1]});
   return t.charAt(0).toUpperCase() + t.substr(1);
 }
 
-function requireMeteor(path) {
+function requireMeteor(path) { // !!! added !!!
   var name = path;
   var result;
   try {
@@ -124,7 +124,7 @@ var MeteorLoader = exports.MeteorLoader = function (_Loader) {
         if (loaderPlugin) {
           resolve(_this2.loaderPlugins[loaderPlugin].fetch(path));
         } else {
-          resolve(requireMeteor(path));
+          resolve(requireMeteor(path)); // !!! block replaced !!!
         }
       } catch (e) {
         reject(e);
