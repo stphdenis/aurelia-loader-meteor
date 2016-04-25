@@ -36,7 +36,7 @@ function ensureOriginOnExports(executed, name) {
   var key = void 0;
   var exportedValue = void 0;
 
-  if (target && target.__useDefault) { // !!! target &&  added !!!
+  if (target.__useDefault) {
     target = target.default;
   }
 
@@ -53,24 +53,26 @@ function ensureOriginOnExports(executed, name) {
   return executed;
 }
 
-function toCamelCase(str) { // !!! added !!!
-  var t = str.replace(/(?:^|\.?)(_.-)/g, function(x, y) {return y.toUpperCase()[1]});
-  return t.charAt(0).toUpperCase() + t.substr(1);
-}
-
 function requireMeteor(path) { // !!! added !!!
   var name = path;
   var result;
   try {
-    result = require('/' + name);
-  } catch (e) {
+    result = require(name);
+  } catch (e1) {
     try {
-      result = require('/' + name + '.ts');
-    } catch (e) {
-      var names = name.split('/');
-      result = require(names[0]);
-      for (var i = 1; i < names.length; i++) {
-        result = result[toCamelCase(names[i])];
+      result = require('/' + name);
+    } catch (e2) {
+      try {
+        result = require('/' + name + '.ts');
+      } catch (e3) {
+        try { // path = module-name/sub-module-name
+          var names = name.split('/'); // names[0] = module-name, names[1] = sub-module-name
+          var mainPath = require(names[0] + '/package.json').main; // mainPath = "path/to/module-name.js"
+          var pathTo = mainPath.substr(0, mainPath.lastIndexOf('/')); // pathTo = "path/to"
+          result = require(names[0] + '/' + pathTo + '/' + names[1]); // require("module-name/path/to/sub-module-name")
+        } catch (e4) {
+          console.debug('aurelia-loader-meteor/meteorRequire: error requiring module ' + name);
+        }
       }
     }
   }

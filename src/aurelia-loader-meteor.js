@@ -2,7 +2,6 @@ import {Origin} from 'aurelia-metadata';
 import {Loader} from 'aurelia-loader';
 import {DOM, PLATFORM} from 'aurelia-pal';
 import {meteorRequire} from './meteor-require'; // !!! import added !!!
-import {toCamelCase} from './to-camel-case'; // !!! import added !!!
 
 /**
 * An implementation of the TemplateLoader interface implemented with text-based loading.
@@ -27,7 +26,7 @@ function ensureOriginOnExports(executed, name) {
   let key;
   let exportedValue;
 
-  if (target && target.__useDefault) { // !!! target &&  added !!!
+  if (target.__useDefault) {
     target = target.default;
   }
 
