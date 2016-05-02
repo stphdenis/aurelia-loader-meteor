@@ -53,8 +53,7 @@ function ensureOriginOnExports(executed, name) {
   return executed;
 }
 
-function requireMeteor(path) { // !!! added !!!
-  var name = path;
+function requireMeteor(name) { // !!! added !!!
   var result;
   try {
     result = require(name);
@@ -75,6 +74,9 @@ function requireMeteor(path) { // !!! added !!!
         }
       }
     }
+  }
+  if(result.textContent) {
+    result = '/* "' + name + '" -> Aurelia don\'t have to load it as Meteor shoul\'d have done the job */';
   }
   return result;
 }

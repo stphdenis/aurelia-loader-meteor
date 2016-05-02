@@ -1,5 +1,4 @@
-export function meteorRequire(path) {
-  const name = path;
+export function meteorRequire(name) {
   let result;
   try {
     result = require(`${name}`);
@@ -21,6 +20,9 @@ export function meteorRequire(path) {
         }
       }
     }
+  }
+  if(result.textContent) {
+    result = `/* "${name}" -> Aurelia don\'t have to load it as Meteor shoul\'d have done the job */`;
   }
   return result;
 }
