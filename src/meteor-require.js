@@ -14,7 +14,6 @@ export function meteorRequire(name) {
           const mainPath = require(names[0] + '/package.json').main; // mainPath = "path/to/module-name.js"
           const pathTo = mainPath.substr(0, mainPath.lastIndexOf('/')); // pathTo = "path/to"
           result = require(`${names[0]}/${pathTo}/${names[1]}`); // require("module-name/path/to/sub-module-name")
-        // result = require(names[0] + '/dist/commonjs/' + names[1]);
         } catch (e4) {
           console.debug(`aurelia-loader-meteor/meteorRequire: error requiring module ${name}`);
         }
